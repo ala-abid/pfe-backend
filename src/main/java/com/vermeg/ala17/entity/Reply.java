@@ -7,13 +7,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Data
-public class Answer {
+public class Reply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,30 +27,14 @@ public class Answer {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
+    //uni
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User author;
 
-    private int upVotes;
-
-    private int downVotes;
-
-    private boolean isSolution;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "question_id")
+    //bi
+    @ManyToOne
+    @JoinColumn(name = "answer_id")
     @JsonIgnore
-    private Question question;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "answer", cascade = CascadeType.ALL)
-    private List<Reply> replies;
-
-    public void addReply(Reply reply){
-        if(replies == null){
-            replies = new ArrayList<>();
-        }
-        replies.add(reply);
-    }
-
-
+    private Answer answer;
 }

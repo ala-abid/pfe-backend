@@ -20,16 +20,16 @@ public class Tag {
 
     private String description;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "created_by_id")
     private User createdBy;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "subscribedToTags")
+    @ManyToMany(mappedBy = "subscribedToTags", fetch = FetchType.LAZY)
     private List<User> subscribedUsers;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "tags")
+    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     private List<Question> questions;
 
     public void addQuestion(Question question){

@@ -31,4 +31,9 @@ public class UserController {
         user.addTag(tag);
         return userRepository.save(user);
     }
+
+    @GetMapping("user/all")
+    public Iterable<User> getall(){
+        return userRepository.findAll();
+    }
 }

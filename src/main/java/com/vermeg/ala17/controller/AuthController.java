@@ -62,8 +62,8 @@ public class AuthController {
     }
  
     @PostMapping("/signup")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-        if(userRepository.existsByUsername(signUpRequest.getUsername())) {
+    public User registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+        /*if(userRepository.existsByUsername(signUpRequest.getUsername())) {
             return new ResponseEntity<String>("Fail -> Username is already taken!",
                     HttpStatus.BAD_REQUEST);
         }
@@ -71,16 +71,16 @@ public class AuthController {
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
             return new ResponseEntity<String>("Fail -> Email is already in use!",
                     HttpStatus.BAD_REQUEST);
-        }
+        }*/
  
         // Creating user's account
         User user = new User(signUpRequest.getName(), signUpRequest.getUsername(),
                 signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
  
-        Set<String> strRoles = signUpRequest.getRole();
+        //Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
  
-        strRoles.forEach(role -> {
+        /*strRoles.forEach(role -> {
           switch(role) {
           case "admin":
             Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
@@ -99,11 +99,14 @@ public class AuthController {
                   .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not found."));
               roles.add(userRole);              
           }
-        });
-        
+        });*/
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not found."));
+        roles.add(userRole);
+
         user.setRoles(roles);
-        userRepository.save(user);
+
  
-        return ResponseEntity.ok().body("User registered successfully!");
+        return userRepository.save(user);
     }
 }

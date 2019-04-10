@@ -7,10 +7,13 @@ import com.vermeg.ala17.repository.UserRepository;
 import com.vermeg.ala17.security.CurrentUser;
 import com.vermeg.ala17.security.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -29,5 +32,12 @@ public class TagController {
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
         tag.setCreatedBy(user1);
         return tagRepository.save(tag);
+    }
+
+    @GetMapping("/tag/all")
+    public List<Tag> getAllTags() {
+        List<Tag> tagList = new ArrayList<>();
+        tagRepository.findAll().forEach(tagList::add);
+        return (List<Tag>)tagRepository.findAll();
     }
 }
