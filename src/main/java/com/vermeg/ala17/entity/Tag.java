@@ -20,6 +20,7 @@ public class Tag {
 
     private String description;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "created_by_id")
     private User createdBy;

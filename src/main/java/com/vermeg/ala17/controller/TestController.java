@@ -1,5 +1,6 @@
 package com.vermeg.ala17.controller;
 
+import com.vermeg.ala17.document.QuestionDocument;
 import com.vermeg.ala17.entity.Answer;
 import com.vermeg.ala17.entity.Question;
 import com.vermeg.ala17.entity.Tag;
@@ -7,6 +8,7 @@ import com.vermeg.ala17.payload.JiraIssueResponse;
 import com.vermeg.ala17.repository.AnswerRepository;
 import com.vermeg.ala17.repository.QuestionRepository;
 import com.vermeg.ala17.repository.TagRepository;
+import com.vermeg.ala17.services.ESQuestionService;
 import com.vermeg.ala17.services.JiraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +32,8 @@ public class TestController {
   TagRepository tagRepository;
   @Autowired
   JiraService jiraService;
+  @Autowired
+  ESQuestionService esQuestionService;
 
   @GetMapping("/api/test/user")
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -85,6 +89,11 @@ public class TestController {
   @GetMapping("/api/test/getJiraIssue/{str}")
   public JiraIssueResponse kk(@PathVariable String str){
     return jiraService.getJiraIssueResponse(str);
+  }
+
+  @GetMapping("/api/test/search/{query}")
+  public List<QuestionDocument> search(@PathVariable String query) throws Exception {
+    return esQuestionService.findByTitle(query);
   }
 
 }

@@ -7,10 +7,9 @@ import com.vermeg.ala17.repository.UserRepository;
 import com.vermeg.ala17.security.CurrentUser;
 import com.vermeg.ala17.security.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @RestController
@@ -35,5 +34,14 @@ public class UserController {
     @GetMapping("user/all")
     public Iterable<User> getall(){
         return userRepository.findAll();
+    }
+
+    @PostMapping("/user/sub")
+    public User subToTag(@CurrentUser UserPrinciple userPrinciple, @RequestBody Iterable<Long> tags){
+        User user1 = userRepository.findByUsername(userPrinciple.getUsername())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        user1.setSubscribedToTags(new ArrayList<>());
+        tagRepository.findAllById(tags).forEach(tag -> user1.addTag(tag));
+        return userRepository.save(user1);
     }
 }
