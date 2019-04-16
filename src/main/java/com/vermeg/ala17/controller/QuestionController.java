@@ -2,10 +2,7 @@ package com.vermeg.ala17.controller;
 
 import com.vermeg.ala17.entity.*;
 import com.vermeg.ala17.payload.QuestionCreateRequest;
-import com.vermeg.ala17.repository.AnswerRepository;
-import com.vermeg.ala17.repository.QuestionRepository;
-import com.vermeg.ala17.repository.TagRepository;
-import com.vermeg.ala17.repository.UserRepository;
+import com.vermeg.ala17.repository.*;
 import com.vermeg.ala17.security.CurrentUser;
 import com.vermeg.ala17.security.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +27,15 @@ public class QuestionController {
     @Autowired
     AnswerRepository answerRepository;
 
+    @Autowired
+    GroupRepository groupRepository;
+
     @PostMapping("/question/create")
     public Question createQuestion(@CurrentUser UserPrinciple user, @RequestBody QuestionCreateRequest questionCreateRequest){
-        Optional<User> userOptional = userRepository.findByUsername(user.getUsername());
+        User user1 = userRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
         Question question = new Question();
-        if (userOptional.isPresent()){
-            question.setAuthor(userOptional.get());
-        }
+        question.setAuthor(user1);
         question.setTitle(questionCreateRequest.getTitle());
         question.setTxt(questionCreateRequest.getTxt());
         question.setUpVotes(0);
@@ -47,6 +46,14 @@ public class QuestionController {
                     .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Tag not found."));
             question.addTag(tag);
         });
+
+        //TODO add member checking
+        Groupp group = groupRepository.findById(questionCreateRequest.getGroupId())
+                .orElseThrow(() -> new RuntimeException("Group not found!"));
+        if(!group.getUsers().contains(user1)) {
+            throw  new RuntimeException("user is not member of this group");
+        }
+        question.setGroup(group);
         return questionRepository.save(question);
     }
 

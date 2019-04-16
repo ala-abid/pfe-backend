@@ -60,6 +60,16 @@ public class User {
     )
     private List<Tag> subscribedToTags;
 
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    private List<Groupp> groupsMemberOf;
+
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "admins", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    private List<Groupp> groupsAdminOf;
+
+
     public User(String name, String username, String email, String password) {
         this.name = name;
         this.username = username;

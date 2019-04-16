@@ -33,7 +33,7 @@ public class Question {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
-    //bi
+    //TODO make bi
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User author;
@@ -53,6 +53,10 @@ public class Question {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private Groupp group;
 
     public void addAnswer(Answer answer){
         if (answers == null){

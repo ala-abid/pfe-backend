@@ -13,5 +13,8 @@ public class QuestionCreateRequest {
     @NotBlank
     private String txt;
 
-    List<String> tags;
+    private List<String> tags;
+
+    @NotBlank
+    private Long groupId;
 }
