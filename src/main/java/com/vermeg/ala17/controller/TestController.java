@@ -1,13 +1,12 @@
 package com.vermeg.ala17.controller;
 
+import com.vermeg.ala17.document.AnswerDocument;
 import com.vermeg.ala17.document.QuestionDocument;
-import com.vermeg.ala17.entity.Answer;
-import com.vermeg.ala17.entity.Question;
-import com.vermeg.ala17.entity.Tag;
+import com.vermeg.ala17.entity.*;
 import com.vermeg.ala17.payload.JiraIssueResponse;
-import com.vermeg.ala17.repository.AnswerRepository;
-import com.vermeg.ala17.repository.QuestionRepository;
-import com.vermeg.ala17.repository.TagRepository;
+import com.vermeg.ala17.repository.*;
+import com.vermeg.ala17.security.CurrentUser;
+import com.vermeg.ala17.security.UserPrinciple;
 import com.vermeg.ala17.services.ESQuestionService;
 import com.vermeg.ala17.services.JiraService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,10 @@ public class TestController {
   JiraService jiraService;
   @Autowired
   ESQuestionService esQuestionService;
+  @Autowired
+  VoteQRepository voteQRepository;
+  @Autowired
+  UserRepository userRepository;
 
   @GetMapping("/api/test/user")
   @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -91,9 +94,20 @@ public class TestController {
     return jiraService.getJiraIssueResponse(str);
   }
 
+  //by title
   @GetMapping("/api/test/search/{query}")
   public List<QuestionDocument> search(@PathVariable String query) throws Exception {
-    return esQuestionService.findByTitle(query);
+    return esQuestionService.findByQuestion(query, "title");
+  }
+
+  @GetMapping("/api/test/searchContent/{query}")
+  public List<QuestionDocument> searchContent(@PathVariable String query) throws Exception {
+    return esQuestionService.findByQuestion(query, "txt");
+  }
+
+  @GetMapping("/api/test/searchAnswers/{query}")
+  public List<AnswerDocument> searchAnswers(@PathVariable String query) throws Exception {
+    return esQuestionService.findByAnswer(query);
   }
 
 }

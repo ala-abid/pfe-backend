@@ -3,6 +3,7 @@ package com.vermeg.ala17.controller;
 import com.vermeg.ala17.entity.Groupp;
 import com.vermeg.ala17.entity.Tag;
 import com.vermeg.ala17.entity.User;
+import com.vermeg.ala17.repository.GroupRepository;
 import com.vermeg.ala17.repository.TagRepository;
 import com.vermeg.ala17.repository.UserRepository;
 import com.vermeg.ala17.security.CurrentUser;
@@ -21,6 +22,9 @@ public class UserController {
 
     @Autowired
     TagRepository tagRepository;
+
+    @Autowired
+    GroupRepository groupRepository;
 
     @GetMapping("user/subscribeToTag/{tagId}")
     public User subscribeToTag(@CurrentUser UserPrinciple userPrinciple, @PathVariable Long tagId){
@@ -58,5 +62,19 @@ public class UserController {
         User user1 = userRepository.findByUsername(userPrinciple.getUsername())
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
         return user1.getGroupsMemberOf();
+    }
+
+    @GetMapping("/user/info")
+    public User getUserInfo(@CurrentUser UserPrinciple userPrinciple){
+        User user1 = userRepository.findByUsername(userPrinciple.getUsername())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        return user1;
+    }
+
+    @GetMapping("/user/usersNotInGroup/{grpId}")
+    public List<User> usersNotInGroup(@PathVariable Long grpId) {
+        Groupp groupp = groupRepository.findById(grpId)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
+        return userRepository.findAllUsersNotMembersOf(groupp);
     }
 }

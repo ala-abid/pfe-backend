@@ -1,11 +1,13 @@
 package com.vermeg.ala17.controller;
 
+import com.vermeg.ala17.entity.Groupp;
 import com.vermeg.ala17.entity.Role;
 import com.vermeg.ala17.entity.RoleName;
 import com.vermeg.ala17.entity.User;
 import com.vermeg.ala17.payload.JwtResponse;
 import com.vermeg.ala17.payload.LoginRequest;
 import com.vermeg.ala17.payload.SignUpRequest;
+import com.vermeg.ala17.repository.GroupRepository;
 import com.vermeg.ala17.repository.RoleRepository;
 import com.vermeg.ala17.repository.UserRepository;
 import com.vermeg.ala17.security.JwtProvider;
@@ -35,6 +37,9 @@ public class AuthController {
  
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    GroupRepository groupRepository;
  
     @Autowired
     RoleRepository roleRepository;
@@ -104,9 +109,13 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User Role not found."));
         roles.add(userRole);
 
+        Groupp groupp = groupRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
+        groupp.adduser(user);
         user.setRoles(roles);
+        groupRepository.save(groupp);
 
  
-        return userRepository.save(user);
+        return user;
     }
 }

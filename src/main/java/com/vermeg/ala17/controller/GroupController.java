@@ -23,14 +23,13 @@ public class GroupController {
     @Autowired
     UserRepository userRepository;
 
-    @GetMapping("/group/create/{name}")
-    public Groupp createGrp(@CurrentUser UserPrinciple userPrinciple, @PathVariable String name){
+    @GetMapping("/group/create/{name}/{description}")
+    public Groupp createGrp(@CurrentUser UserPrinciple userPrinciple, @PathVariable String name, @PathVariable String description){
         User user1 = userRepository.findByUsername(userPrinciple.getUsername())
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
         Groupp group = new Groupp();
         group.setName(name);
-        group.setDescription("No description available.");
-        //make this user an admin of the grp
+        group.setDescription(description);
         group.addAdmin(user1);
         group.adduser(user1);
         return groupRepository.save(group);
@@ -46,7 +45,7 @@ public class GroupController {
         return groupRepository.save(groupp);
     }
 
-    @GetMapping("/group/{groupId}/addUser/{adminId}")
+    @GetMapping("/group/{groupId}/addAdmin/{adminId}")
     public Groupp addAdminToGrp(@PathVariable Long groupId, @PathVariable Long adminId){
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
@@ -69,5 +68,11 @@ public class GroupController {
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
     }
 
+    @GetMapping("/group/{id}/getUsers")
+    public List<User> getGroupUsers(@PathVariable Long id){
+        Groupp groupp =  groupRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
+        return groupp.getUsers();
+    }
 
 }

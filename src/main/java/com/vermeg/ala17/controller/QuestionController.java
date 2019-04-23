@@ -8,9 +8,7 @@ import com.vermeg.ala17.security.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @RestController
@@ -75,10 +73,8 @@ public class QuestionController {
     }
 
     @GetMapping("question/all")
-    public List<Question> getAllQuestions(){
-        List<Question> questionList = new ArrayList<>();
-        questionRepository.findAll().forEach(questionList::add);
-        return questionList;
+    public Iterable<Question> getAllQuestions(){
+        return questionRepository.findAll();
     }
 
     @PostMapping("/question/answer/{id}")
@@ -92,5 +88,19 @@ public class QuestionController {
         answer.addReply(reply);
         answerRepository.save(answer);
         return answer.getQuestion();
+    }
+
+    @GetMapping("/question/perCurrentUserTags")
+    public Set<Question> getQuestionsPerCurrentUserTags(@CurrentUser UserPrinciple userPrinciple) {
+        User user1 = userRepository.findByUsername(userPrinciple.getUsername())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        Set<Question> questionSet = new HashSet<>();
+        user1.getSubscribedToTags().forEach( tag ->
+                {
+                    List<Question> questionList = questionRepository.findByTagsContainsAndGroupIn(tag, user1.getGroupsMemberOf());
+                    questionSet.addAll(questionList);
+                }
+        );
+        return questionSet;
     }
 }
