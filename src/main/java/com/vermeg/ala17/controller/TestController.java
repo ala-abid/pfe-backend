@@ -110,4 +110,39 @@ public class TestController {
     return esQuestionService.findByAnswer(query);
   }
 
+  @GetMapping("/moreLikeThis/{id}")
+  public List<QuestionDocument> moreLikeThis(@PathVariable Long id, @CurrentUser UserPrinciple userPrinciple) throws Exception {
+    List<QuestionDocument> questionDocumentList =  esQuestionService.getRelated(String.valueOf(id));
+    if(questionDocumentList.size()>2) return questionDocumentList;
+    Question question = questionRepository.findById(id).orElse(null);
+    User user1 = userRepository.findByUsername(userPrinciple.getUsername())
+            .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+    try {
+      List<Question> questions = questionRepository
+              .findByTagsContainsAndGroupInOrderByIdDesc(question.getTags().get(0), user1.getGroupsMemberOf());
+      for (int i = 0; i < questions.size() && questionDocumentList.size() < 3 ; i++) {
+        boolean idExists = false;
+        if(id.equals(questions.get(i).getId())) {
+          idExists = true;
+        }
+        for (int j = 0; j < questionDocumentList.size(); j++) {
+          if(questionDocumentList.get(j).getId().equals(questions.get(i).getId())) {
+            idExists = true;
+            break;
+          }
+        }
+        if (!idExists) {
+          QuestionDocument questionDocument1 = new QuestionDocument();
+          questionDocument1.setTxt(questions.get(i).getTxt());
+          questionDocument1.setTitle(questions.get(i).getTitle());
+          questionDocument1.setId(questions.get(i).getId());
+          questionDocumentList.add(questionDocument1);
+        }
+      }
+    }catch (Exception e){
+      e.printStackTrace();
+    }
+    return questionDocumentList;
+  }
+
 }

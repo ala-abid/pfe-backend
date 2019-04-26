@@ -11,4 +11,5 @@ import java.util.List;
 public interface QuestionRepository extends CrudRepository<Question, Long> {
     //@Query("SELECT q FROM Question q WHERE :tags MEMBER OF q.tags")
     List<Question> findByTagsContainsAndGroupIn(Tag tag, List<Groupp> groupps);
+    List<Question> findByTagsContainsAndGroupInOrderByIdDesc(Tag tag, List<Groupp> groupps);
 }

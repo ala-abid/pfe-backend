@@ -35,9 +35,7 @@ public class TagController {
     }
 
     @GetMapping("/tag/all")
-    public List<Tag> getAllTags() {
-        List<Tag> tagList = new ArrayList<>();
-        tagRepository.findAll().forEach(tagList::add);
-        return (List<Tag>)tagRepository.findAll();
+    public Iterable<Tag> getAllTags() {
+        return tagRepository.findAll();
     }
 }

@@ -94,7 +94,12 @@ public class QuestionController {
     public Set<Question> getQuestionsPerCurrentUserTags(@CurrentUser UserPrinciple userPrinciple) {
         User user1 = userRepository.findByUsername(userPrinciple.getUsername())
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
-        Set<Question> questionSet = new HashSet<>();
+        Set<Question> questionSet = new TreeSet<>(new Comparator<Question>() {
+            @Override
+            public int compare(Question o1, Question o2) {
+                return o2.getId().intValue() - o1.getId().intValue();
+            }
+        });
         user1.getSubscribedToTags().forEach( tag ->
                 {
                     List<Question> questionList = questionRepository.findByTagsContainsAndGroupIn(tag, user1.getGroupsMemberOf());
@@ -102,5 +107,14 @@ public class QuestionController {
                 }
         );
         return questionSet;
+    }
+
+    @GetMapping("tag/{tagId}/questions")
+    public List<Question> getQuestionsPerTag(@PathVariable Long tagId, @CurrentUser UserPrinciple userPrinciple) {
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Tag not found."));
+        User user1 = userRepository.findByUsername(userPrinciple.getUsername())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        return questionRepository.findByTagsContainsAndGroupInOrderByIdDesc(tag, user1.getGroupsMemberOf());
     }
 }
