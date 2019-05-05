@@ -8,6 +8,7 @@ import com.vermeg.ala17.repository.UserRepository;
 import com.vermeg.ala17.security.CurrentUser;
 import com.vermeg.ala17.security.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,12 +47,44 @@ public class GroupController {
     }
 
     @GetMapping("/group/{groupId}/addAdmin/{adminId}")
-    public Groupp addAdminToGrp(@PathVariable Long groupId, @PathVariable Long adminId){
+    public Groupp addAdminToGrp(@PathVariable Long groupId, @PathVariable Long adminId, @CurrentUser UserPrinciple userPrinciple){
+        User currentUser = userRepository.findById(userPrinciple.getId())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
         Groupp groupp = groupRepository.findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
-        groupp.addAdmin(admin);
+        if (groupp.getUsers().contains(admin) && (groupp.getAdmins().size() == 0 || groupp.getAdmins().contains(currentUser))) {
+            groupp.addAdmin(admin);
+        }
+        return groupRepository.save(groupp);
+    }
+
+    @DeleteMapping("/group/{groupId}/deleteUser/{userId}")
+    public Groupp removeUser(@CurrentUser UserPrinciple userPrinciple, @PathVariable Long groupId, @PathVariable Long userId) {
+        User currentUser = userRepository.findById(userPrinciple.getId())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        User userToRemove = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        Groupp groupp = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
+        if(groupp.getAdmins().contains(currentUser)) {
+            groupp.getUsers().remove(userToRemove);
+        }
+        return groupRepository.save(groupp);
+    }
+
+    @DeleteMapping("/group/{groupId}/deleteAdmin/{userId}")
+    public Groupp removeAdmin(@CurrentUser UserPrinciple userPrinciple, @PathVariable Long groupId, @PathVariable Long userId) {
+        User currentUser = userRepository.findById(userPrinciple.getId())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        User userToRemove = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        Groupp groupp = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
+        if(groupp.getAdmins().contains(currentUser)) {
+            groupp.getAdmins().remove(userToRemove);
+        }
         return groupRepository.save(groupp);
     }
 
@@ -74,5 +107,7 @@ public class GroupController {
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
         return groupp.getUsers();
     }
+
+
 
 }

@@ -6,6 +6,7 @@ import com.vermeg.ala17.repository.*;
 import com.vermeg.ala17.security.CurrentUser;
 import com.vermeg.ala17.security.UserPrinciple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -27,6 +28,9 @@ public class QuestionController {
 
     @Autowired
     GroupRepository groupRepository;
+
+    @Autowired
+    VoteQRepository voteQRepository;
 
     @PostMapping("/question/create")
     public Question createQuestion(@CurrentUser UserPrinciple user, @RequestBody QuestionCreateRequest questionCreateRequest){
@@ -116,5 +120,12 @@ public class QuestionController {
         User user1 = userRepository.findByUsername(userPrinciple.getUsername())
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
         return questionRepository.findByTagsContainsAndGroupInOrderByIdDesc(tag, user1.getGroupsMemberOf());
+    }
+
+    @DeleteMapping("question/delete/{id}")
+    public int deleteQuestion(@PathVariable Long id){
+        voteQRepository.deleteByQuestion_id(id);
+        questionRepository.deleteById(id);
+        return 1;
     }
 }
