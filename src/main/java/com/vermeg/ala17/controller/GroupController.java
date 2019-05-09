@@ -107,7 +107,4 @@ public class GroupController {
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Group not found."));
         return groupp.getUsers();
     }
-
-
-
 }

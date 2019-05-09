@@ -23,6 +23,7 @@ public class Question {
     private String title;
 
     @NotBlank
+    @Lob
     private String txt;
 
     @UpdateTimestamp

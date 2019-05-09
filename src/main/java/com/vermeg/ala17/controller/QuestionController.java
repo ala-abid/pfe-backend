@@ -2,6 +2,7 @@ package com.vermeg.ala17.controller;
 
 import com.vermeg.ala17.entity.*;
 import com.vermeg.ala17.payload.QuestionCreateRequest;
+import com.vermeg.ala17.payload.QuestionEditRequest;
 import com.vermeg.ala17.repository.*;
 import com.vermeg.ala17.security.CurrentUser;
 import com.vermeg.ala17.security.UserPrinciple;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.Path;
 import java.util.*;
 
 
@@ -120,6 +122,26 @@ public class QuestionController {
         User user1 = userRepository.findByUsername(userPrinciple.getUsername())
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
         return questionRepository.findByTagsContainsAndGroupInOrderByIdDesc(tag, user1.getGroupsMemberOf());
+    }
+
+    @PostMapping("question/{id}/edit")
+    public Question editQuestion(@PathVariable Long id, @CurrentUser UserPrinciple userPrinciple, @RequestBody QuestionEditRequest body) {
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Question not found."));
+        User user1 = userRepository.findByUsername(userPrinciple.getUsername())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
+        if (question.getAuthor().getUsername().equals(user1.getUsername())){
+            question.setTxt(body.getTxt());
+            question.setTitle(body.getTitle());
+            question.setTags(new ArrayList<>());
+            body.getTags().forEach( tagStr -> {
+                Tag tag = tagRepository.findByName(tagStr)
+                        .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Tag not found."));
+                question.addTag(tag);
+            });
+            return questionRepository.save(question);
+        }
+        throw new RuntimeException("Fail! -> We dont do that here.");
     }
 
     @DeleteMapping("question/delete/{id}")
