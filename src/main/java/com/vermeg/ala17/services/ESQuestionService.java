@@ -8,14 +8,13 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.query.MoreLikeThisQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -126,6 +125,19 @@ public class ESQuestionService {
         Set<LilTagDoc> tagNames = new HashSet<>();
         getSearchResultQuestion(response).forEach(qDoc -> tagNames.addAll(qDoc.getTags()));
         return tagNames;
+    }
+
+    public List<QuestionDocument> advancedSearch() throws IOException {
+        BoolQueryBuilder matchQueryBuilder  = QueryBuilders.boolQuery()
+                .must(QueryBuilders.matchQuery("title", "ngoninit").analyzer("english"))
+                .must(QueryBuilders.matchQuery("tags.name", "angular"));
+        SearchRequest searchRequest = buildSearchRequest("question", "_doc");
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(matchQueryBuilder);
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+        System.out.println(searchSourceBuilder);
+        return getSearchResultQuestion(response);
     }
 
 

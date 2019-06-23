@@ -115,7 +115,7 @@ public class QuestionController {
         return questionSet;
     }
 
-    @GetMapping("tag/{tagId}/questions")
+    @GetMapping("question/tagged/{tagId}")
     public List<Question> getQuestionsPerTag(@PathVariable Long tagId, @CurrentUser UserPrinciple userPrinciple) {
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: Tag not found."));
@@ -149,5 +149,26 @@ public class QuestionController {
         voteQRepository.deleteByQuestion_id(id);
         questionRepository.deleteById(id);
         return 1;
+    }
+
+    @GetMapping("answer/{answerId}/markAsSolution")
+    public Question markAskSolution(@CurrentUser UserPrinciple userPrinciple, @PathVariable Long answerId) {
+        Answer answer = answerRepository.findById(answerId).orElseThrow(() -> new RuntimeException("Fail! -> Answer not found"));
+        Question question = answer.getQuestion();
+        if(question.getAuthor().equals(userRepository.findByUsername(userPrinciple.getUsername())
+                .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found.")))){
+
+            question.getAnswers().forEach(
+                    answer1 -> {
+                        if(!answer1.equals(answer)) answer1.setSolution(false);
+                        else {
+                            answer1.setSolution(!answer1.isSolution());
+                            question.setSolved(answer.isSolution());
+                        }
+                    }
+            );
+
+        }
+        return questionRepository.save(question);
     }
 }

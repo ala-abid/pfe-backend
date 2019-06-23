@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -135,7 +136,9 @@ public class TestController {
           }
         }
         if (!idExists) {
-          QuestionDocument questionDocument1 = new QuestionDocument();
+          QuestionDocument questionDocument1 = new QuestionDocument(
+
+          );
           questionDocument1.setTxt(questions.get(i).getTxt());
           questionDocument1.setTitle(questions.get(i).getTitle());
           questionDocument1.setId(questions.get(i).getId());
@@ -153,4 +156,8 @@ public class TestController {
     return esQuestionService.getTagSuggestion(title, txt);
   }
 
+  @GetMapping("advSearch")
+  public List<QuestionDocument> ff() throws IOException {
+    return esQuestionService.advancedSearch();
+  }
 }

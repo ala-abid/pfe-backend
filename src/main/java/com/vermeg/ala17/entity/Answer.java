@@ -19,6 +19,7 @@ public class Answer {
     private Long id;
 
     @NotBlank
+    @Lob
     private String txt;
 
     @CreationTimestamp
